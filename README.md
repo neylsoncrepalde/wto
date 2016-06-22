@@ -1,6 +1,6 @@
 # WTO data research
 
-This repository contains the `R` code for the analysis of international trade data conducted by GIARS, the Social Network Analysis Interdisciplinary Research Group. 
+This repository contains the `R` code for the analysis of international trade data conducted by **GIARS**, the Social Network Analysis Interdisciplinary Research Group. 
 
 GIARS is leaded by [Dr. Silvio Salej Higgins](http://lattes.cnpq.br/3698999001620631), Professor of Sociology at UFMG (Minas Gerais Federal University.
 

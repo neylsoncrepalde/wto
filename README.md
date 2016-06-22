@@ -2,7 +2,7 @@
 
 This repository contains the `R` code for the analysis of international trade data conducted by **GIARS**, the Social Network Analysis Interdisciplinary Research Group. 
 
-GIARS is leaded by [Dr. Silvio Salej Higgins](http://lattes.cnpq.br/3698999001620631), Professor of Sociology at UFMG (Minas Gerais Federal University.
+GIARS is leaded by [Dr. Silvio Salej Higgins](http://lattes.cnpq.br/3698999001620631), Professor of Sociology at UFMG (Minas Gerais Federal University).
 
 The codes kept here are being developed by [Neylson Crepalde](https://www.facebook.com/neylson.crepalde) and [Ítalo Assis](https://www.facebook.com/italo.cassio.71).
 

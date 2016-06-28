@@ -3,18 +3,19 @@
 # Neylson e Italo
 
 library(magrittr)
-library(readr)
 library(gdata)
-
+library(igraph)
 
 path <- "C:/Users/giars/Documents/Neylson/WTO//2012/" #o caminho do diretorio (ajustar)
 files <- list.files(path = path, pattern='[.]xls')    #lista os nomes dos arquivos
 sites <- paste0(path,files)                           #cola as duas informacoes para realizar o loop
 
-
-rede <- data.frame()
+# Criando os data frames vazios para preencher e o contador
+rede.out <- data.frame()
+rede.in <- data.frame()
 contador <- 1
 
+# Efetuando a coleta de dados via for loop
 for (i in 1:length(sites)){
 print(contador)
 
@@ -23,8 +24,9 @@ print(contador)
 df <- read.xls(sites[i], stringsAsFactors=F)
 #View(df)
 
-#pais em questao
+#pais em questao e limpeza
 pais <- df[1,1]
+pais %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
 
 #separando as colunas de interesse - lacos e pesos
 dados <- df[42:46,c(1,6,8,13)]
@@ -33,25 +35,28 @@ dados <- df[42:46,c(1,6,8,13)]
 #limpando os dados
 dados[[2]] %<>% gsub(" ","",.) %>% as.numeric
 dados[[4]] %<>% gsub(" ","",.) %>% as.numeric
-dados[[1]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.)
-dados[[3]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.)
+dados[[1]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
+dados[[3]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
 #dados
 
 
-# montando a rede
+# montando a lista de lacos
 rede.out <- data.frame(pais, dados[[1]], weights=dados[[2]])
 rede.in  <- data.frame(dados[[3]], pais, weights=dados[[4]])
-names(rede.out) <- c("out","in","weight")
-names(rede.in) <- c("out","in","weight")
-rede     <- rbind(rede, rede.out, rede.in)
 
 contador <- contador+1
 }
 
 
-#rede <- na.omit(rede)
-library(igraph)
-g <- graph_from_edgelist(as.matrix(rede[,1:2]), directed = T)
-g <- delete.vertices(g, V(g)[37]) #deleta um no NA
-E(g)$weight = rede[[3]]
-plot(g, edge.width=as.numeric(E(g)$weight)/10, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T)
+##############################################################
+# Rede exportacao
+rede.out <- na.omit(rede.out)
+g.out <- graph_from_edgelist(as.matrix(rede.out[,1:2]), directed = T)
+E(g.out)$weight = rede.out[[3]]
+plot(g.out, edge.width=as.numeric(E(g.out)$weight)/10, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T)
+
+# Rede importacao
+rede.in <- na.omit(rede.in)
+g.in <- graph_from_edgelist(as.matrix(rede.in[,1:2]), directed = T)
+E(g.in)$weight = rede.in[[3]]
+plot(g.in, edge.width=as.numeric(E(g.in)$weight)/10, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T)

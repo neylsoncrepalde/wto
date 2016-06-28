@@ -41,8 +41,10 @@ dados[[3]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("
 
 
 # montando a lista de lacos
-rede.out <- data.frame(pais, dados[[1]], weights=dados[[2]])
-rede.in  <- data.frame(dados[[3]], pais, weights=dados[[4]])
+rede.out1 <- data.frame(pais, dados[[1]], weights=dados[[2]])
+rede.in1  <- data.frame(dados[[3]], pais, weights=dados[[4]])
+rede.out  <- rbind(rede.out, rede.out1)
+rede.in   <- rbind(rede.in, rede.in1)
 
 contador <- contador+1
 }

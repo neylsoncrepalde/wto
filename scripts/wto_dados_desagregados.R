@@ -55,10 +55,10 @@ contador <- contador+1
 rede.out <- na.omit(rede.out)
 g.out <- graph_from_edgelist(as.matrix(rede.out[,1:2]), directed = T)
 E(g.out)$weight = rede.out[[3]]
-plot(g.out, edge.width=as.numeric(E(g.out)$weight)/10, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T)
+plot(g.out, edge.arrow.size=.2, vertex.size=4,vertex.label.cex=.7,edge.curved=T, main="Exports")
 
 # Rede importacao
 rede.in <- na.omit(rede.in)
 g.in <- graph_from_edgelist(as.matrix(rede.in[,1:2]), directed = T)
 E(g.in)$weight = rede.in[[3]]
-plot(g.in, edge.width=as.numeric(E(g.in)$weight)/10, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T)
+plot(g.in, edge.arrow.size=.2, vertex.size=4, vertex.label.cex=.7,edge.curved=T, main="Imports")

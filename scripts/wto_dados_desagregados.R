@@ -6,7 +6,7 @@ library(magrittr)
 library(gdata)
 library(igraph)
 
-path <- "C:/Users/giars/Documents/Neylson/WTO//2012/" #o caminho do diretorio (ajustar)
+path <- "C:/Users/giars/Documents/Neylson/WTO/2012/" #o caminho do diretorio (ajustar)
 files <- list.files(path = path, pattern='[.]xls')    #lista os nomes dos arquivos
 sites <- paste0(path,files)                           #cola as duas informacoes para realizar o loop
 

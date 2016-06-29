@@ -15,6 +15,7 @@ rede.out <- data.frame()
 rede.in <- data.frame()
 contador <- 1
 
+##############################################################
 # Efetuando a coleta de dados via for loop
 for (i in 1:length(sites)){
 print(contador)
@@ -48,9 +49,9 @@ rede.in   <- rbind(rede.in, rede.in1)
 
 contador <- contador+1
 }
-
-
 ##############################################################
+
+
 # Rede exportacao
 rede.out <- na.omit(rede.out)
 g.out <- graph_from_edgelist(as.matrix(rede.out[,1:2]), directed = T)

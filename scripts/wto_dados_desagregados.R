@@ -47,6 +47,12 @@ rede.in1  <- data.frame(dados[[3]], pais, weights=dados[[4]])
 rede.out  <- rbind(rede.out, rede.out1)
 rede.in   <- rbind(rede.in, rede.in1)
 
+#capturando os atributos
+  #colnames(attr)[1] <- "pais"
+  #attr.name <- df[3:8,1]
+  #attr.values <- df[3:8,6]
+  #attr.values %<>% gsub(" ","",.) %>% as.numeric
+
 contador <- contador+1
 }
 ##############################################################

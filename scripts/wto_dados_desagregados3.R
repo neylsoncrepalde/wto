@@ -8,6 +8,7 @@ sites <- paste0(path,files)                           #cola as duas informacoes 
 # Criando os data frames vazios para preencher e o contador
 rede.out3 <- data.frame()
 rede.in3 <- data.frame()
+atributos3 <- data.frame()
 contador <- 1
 
 ##############################################################
@@ -42,8 +43,19 @@ for (i in 1:length(sites)){
   rede.out3  <- rbind(rede.out3, rede.out1)
   rede.in3   <- rbind(rede.in3, rede.in1)
   
+  #capturando os atributos
+  attr.name <- df[c(3:8,32,33,35),1]
+  attr.values <- df[c(3:8,32,33,35),6]
+  attr.values %<>% gsub(" ","",.) %>% as.numeric
+  
+  attr <- rbind(attr.name, attr.values)
+  attr %<>% data.frame(pais,.) %>% .[-1,]
+  atributos3 <- rbind(atributos3, attr)
+  
+  
   contador <- contador+1
 }
+colnames(atributos3)[2:10] <- attr.name
 ##############################################################
 
 

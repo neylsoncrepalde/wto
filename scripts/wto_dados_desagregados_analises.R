@@ -1,6 +1,7 @@
 # WTO Temporal analysis
 # ANALYSIS
 # Neylson Crepalde
+# EM CONSTRUCAO
 
 library(statnet)
 library(intergraph)

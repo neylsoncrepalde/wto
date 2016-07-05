@@ -13,6 +13,7 @@ sites <- paste0(path,files)                           #cola as duas informacoes 
 # Criando os data frames vazios para preencher e o contador
 rede.out <- data.frame()
 rede.in <- data.frame()
+atributos <- data.frame()
 contador <- 1
 
 ##############################################################

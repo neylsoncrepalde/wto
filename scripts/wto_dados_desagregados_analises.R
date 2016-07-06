@@ -2,14 +2,29 @@
 # ANALYSIS
 # Neylson Crepalde
 
-source("/home/neylson/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados.R")
-source("/home/neylson/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados2.R")
-source("/home/neylson/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados3.R")
+#source("C:/Users/neyls/Documents/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados.R")
+#source("C:/Users/neyls/Documents/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados2.R")
+#source("C:/Users/neyls/Documents/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados3.R")
 
 library(statnet)
 library(intergraph)
 library(ndtv)
+library(ineq)
 
+########################
+atributos[,11] <- 2010
+names(atributos)[11] <- "Year"
+atributos2[,11] <- 2011
+names(atributos2)[11] <- "Year"
+atributos3[,11] <- 2014
+names(atributos3)[11] <- "Year"
+
+############################
+# Calculando o GINI e plotando a Lorenz Curve
+ineq(atributos[[10]], type = "Gini")
+plot(Lc(atributos[[10]]), col="darkred", lwd=2)
+
+#######################
 n.out <- network(as.matrix(get.adjacency(g.out)),directed=T)
 n.out %e% "weight" <- rede.out[,3]
 n.out2 <- asNetwork(g.out2)

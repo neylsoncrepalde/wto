@@ -48,19 +48,29 @@ rede.in1  <- data.frame(dados[[3]], pais, weights=dados[[4]])
 rede.out  <- rbind(rede.out, rede.out1)
 rede.in   <- rbind(rede.in, rede.in1)
 
-#capturando os atributos
+  #capturando os atributos
   attr.name <- df[c(3:8,32,33,35),1]
   attr.values <- df[c(3:8,32,33,35),6]
   attr.values %<>% gsub(" ","",.) %>% as.numeric
   
-  attr <- rbind(attr.name, attr.values)
-  attr %<>% data.frame(pais,.) %>% .[-1,]
+  attr <- c()
+  attr[1] <- pais
+  attr[2:10] <- attr.values
   atributos <- rbind(atributos, attr)
-
+  
   
   contador <- contador+1
 }
+colnames(atributos)[1] <- "Country"
 colnames(atributos)[2:10] <- attr.name
+
+my.to.numeric <- function(x){
+  library(magrittr)
+  x %<>% as.character %>% as.numeric
+  return(x)
+}
+
+atributos[,2:10] %<>% apply(., 2, my.to.numeric)
 ##############################################################
 
 

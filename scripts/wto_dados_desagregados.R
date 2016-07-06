@@ -6,6 +6,12 @@ library(magrittr)
 library(gdata)
 library(igraph)
 
+my.to.numeric <- function(x){
+  library(magrittr)
+  x %<>% as.character %>% as.numeric
+  return(x)
+}
+
 path <- "C:/Users/giars/Documents/Neylson/WTO/2012/" #o caminho do diretorio (ajustar)
 files <- list.files(path = path, pattern='[.]xls')    #lista os nomes dos arquivos
 sites <- paste0(path,files)                           #cola as duas informacoes para realizar o loop
@@ -49,28 +55,24 @@ rede.out  <- rbind(rede.out, rede.out1)
 rede.in   <- rbind(rede.in, rede.in1)
 
   #capturando os atributos
-  attr.name <- df[c(3:8,32,33,35),1]
   attr.values <- df[c(3:8,32,33,35),6]
   attr.values %<>% gsub(" ","",.) %>% as.numeric
   
   attr <- c()
   attr[1] <- pais
   attr[2:10] <- attr.values
-  atributos <- rbind(atributos, attr)
-  
+  atrib <- data.frame()
+  atrib <- rbind(atrib, attr)
+  atrib[,1] %<>% as.character
+  atrib[,2:10] %<>% apply(., 2, my.to.numeric)
+  names(atrib) <- 1:10
+  atributos <- rbind(atributos, atrib)
   
   contador <- contador+1
 }
 colnames(atributos)[1] <- "Country"
+attr.name <- df[c(3:8,32,33,35),1]
 colnames(atributos)[2:10] <- attr.name
-
-my.to.numeric <- function(x){
-  library(magrittr)
-  x %<>% as.character %>% as.numeric
-  return(x)
-}
-
-atributos[,2:10] %<>% apply(., 2, my.to.numeric)
 ##############################################################
 
 

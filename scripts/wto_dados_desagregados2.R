@@ -48,14 +48,24 @@ for (i in 1:length(sites)){
   attr.values <- df[c(3:8,32,33,35),6]
   attr.values %<>% gsub(" ","",.) %>% as.numeric
   
-  attr <- rbind(attr.name, attr.values)
-  attr %<>% data.frame(pais,.) %>% .[-1,]
+  attr <- c()
+  attr[1] <- pais
+  attr[2:10] <- attr.values
   atributos2 <- rbind(atributos2, attr)
   
   
   contador <- contador+1
 }
+colnames(atributos2)[1] <- "Country"
 colnames(atributos2)[2:10] <- attr.name
+
+my.to.numeric <- function(x){
+  library(magrittr)
+  x %<>% as.character %>% as.numeric
+  return(x)
+}
+
+atributos2[,2:10] %<>% apply(., 2, my.to.numeric)
 ##############################################################
 
 

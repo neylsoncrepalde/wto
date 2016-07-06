@@ -44,28 +44,24 @@ for (i in 1:length(sites)){
   rede.in3   <- rbind(rede.in3, rede.in1)
   
   #capturando os atributos
-  attr.name <- df[c(3:8,32,33,35),1]
   attr.values <- df[c(3:8,32,33,35),6]
   attr.values %<>% gsub(" ","",.) %>% as.numeric
   
   attr <- c()
   attr[1] <- pais
   attr[2:10] <- attr.values
-  atributos3 <- rbind(atributos3, attr)
-  
+  atrib <- data.frame()
+  atrib <- rbind(atrib, attr)
+  atrib[,1] %<>% as.character
+  atrib[,2:10] %<>% apply(., 2, my.to.numeric)
+  names(atrib) <- 1:10
+  atributos3 <- rbind(atributos3, atrib)
   
   contador <- contador+1
 }
 colnames(atributos3)[1] <- "Country"
+attr.name <- df[c(3:8,32,33,35),1]
 colnames(atributos3)[2:10] <- attr.name
-
-my.to.numeric <- function(x){
-  library(magrittr)
-  x %<>% as.character %>% as.numeric
-  return(x)
-}
-
-atributos3[,2:10] %<>% apply(., 2, my.to.numeric)
 ##############################################################
 
 

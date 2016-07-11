@@ -20,11 +20,20 @@ atributos3[,11] <- 2014
 names(atributos3)[11] <- "Year"
 
 ############################
-# Calculando o Gini e plotando a Lorenz Curve
+# Calculando o GINI e plotando a Lorenz Curve
 ineq(atributos[[10]], type = "Gini")
-plot(Lc(atributos[[10]]), col="darkred", lwd=2,
-     main="Lorenz Curve - World Exports 2010",xlab="Share in world total exports",
-     ylab = "Countries")
+ineq(atributos2[[10]], type="Gini")
+ineq(atributos3[[10]], type="Gini")
+
+par(mfrow=c(1,2))
+plot(Lc(atributos[[10]]), col="darkred", lwd=2, main="WTO - Exports 2010")
+legend("topleft", "Gini = 0.8410")
+plot(Lc(atributos2[[10]]), col="darkred", lwd=2, main="WTO - Exports 2011")
+legend("topleft", "Gini = 0.8248")
+
+par(mfrow=c(1,1))
+plot(Lc(atributos3[[10]]), col="darkred", lwd=2, main="WTO - Exports 2014")
+legend("topleft", "Gini = 0.8396")
 
 
 # Analisando o Gini

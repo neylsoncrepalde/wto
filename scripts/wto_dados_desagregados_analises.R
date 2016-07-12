@@ -12,6 +12,53 @@ library(ndtv)
 library(ineq)
 library(ggplot2)
 
+#############################
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
 ########################
 atributos[,11] <- 2010
 names(atributos)[11] <- "Year"
@@ -36,6 +83,35 @@ par(mfrow=c(1,1))
 plot(Lc(atributos3[[10]]), col="darkred", lwd=2, main="WTO - Exports 2014")
 legend("topleft", "Gini = 0.8396")
 
+# plotando a Lc com ggplot
+Lc1 <- Lc(atributos[[10]])
+p1 <- Lc1$p
+L1 <- Lc1$L
+gg1 <- ggplot(data=NULL,aes(x=p1,y=L1))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+  geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
+  scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
+  labs(title="Lorenz Curve - 2010",x="Share in world total exports",y="")+
+  annotate("text",x=.7,y=.3,label="Gini = 0.8410",size=6)
+
+Lc2 <- Lc(atributos2[[10]])
+p2 <- Lc2$p
+L2 <- Lc2$L
+gg2 <- ggplot(data=NULL,aes(x=p2,y=L2))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+  geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
+  scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
+  labs(title="Lorenz Curve - 2011",x="Share in world total exports",y="")+
+  annotate("text",x=.7,y=.3,label="Gini = 0.8248",size=6)
+
+Lc3 <- Lc(atributos3[[10]])
+p3 <- Lc3$p
+L3 <- Lc3$L
+gg3 <- ggplot(data=NULL,aes(x=p3,y=L3))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+  geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
+  scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
+  labs(title="Lorenz Curve - 2014",x="Share in world total exports",y="")+
+  annotate("text",x=.7,y=.3,label="Gini = 0.8396",size=6)
+
+multiplot(gg1,gg2,gg3, cols=3)
 
 # Analisando o Gini
 gini11 <- ineq(atributos[[8]], type = "Gini")

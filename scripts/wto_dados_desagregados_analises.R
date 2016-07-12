@@ -51,10 +51,9 @@ data <- data.frame(gini1,gini2, year=c(2010,2011,2014))
 data %<>% reshape2::melt(.,id="year")
 ggplot(data=data, aes(x=year, y=value, color=variable))+geom_line(lwd=1)+geom_point(size=3)+
   ylim(.8,.85)+labs(x="",y="Gini Coefficient",title="World Exports")+
-  scale_color_discrete(name="",
-                     labels=c("Merchandise Exports, f.o.b. (million US$)",
+  scale_color_discrete(name="",labels=c("Merchandise Exports, f.o.b. (million US$)",
                               "Share in world total exports"))+
-  theme_bw()+theme(legend.position="top",legend.text=element_text(size=12))
+  theme_light()+theme(legend.position="top",legend.text=element_text(size=12))
 
 
 #######################

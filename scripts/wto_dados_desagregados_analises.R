@@ -54,7 +54,7 @@ ggplot(data=data, aes(x=year, y=value, color=variable))+geom_line(lwd=1)+geom_po
   scale_color_discrete(name="",
                      labels=c("Merchandise Exports, f.o.b. (million US$)",
                               "Share in world total exports"))+
-  theme(legend.position="top",legend.text=element_text(size=12))
+  theme_bw()+theme(legend.position="top",legend.text=element_text(size=12))
 
 
 #######################

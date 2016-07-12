@@ -10,6 +10,7 @@ library(statnet)
 library(intergraph)
 library(ndtv)
 library(ineq)
+library(ggplot2)
 
 ########################
 atributos[,11] <- 2010
@@ -46,9 +47,15 @@ gini22 <- ineq(atributos2[[10]], type = "Gini")
 gini23 <- ineq(atributos3[[10]], type = "Gini")
 gini2 <- c(gini21,gini22,gini23)
 
-ggplot(data=NULL, aes(x=c(2010,2011,2014)))+geom_path(aes(y=gini1), color="darkred")+
-  geom_path(aes(y=gini2),color="blue")+ylim(.8,1)+
-  labs(x="",y="Gini Coefficient",title="World Exports")
+data <- data.frame(gini1,gini2, year=c(2010,2011,2014))
+data %<>% reshape2::melt(.,id="year")
+ggplot(data=data, aes(x=year, y=value, color=variable))+geom_line(lwd=1)+geom_point(size=3)+
+  ylim(.8,.85)+labs(x="",y="Gini Coefficient",title="World Exports")+
+  scale_color_discrete(name="",
+                     labels=c("Merchandise Exports, f.o.b. (million US$)",
+                              "Share in world total exports"))+
+  theme(legend.position="top",legend.text=element_text(size=12))
+
 
 #######################
 n.out <- network(as.matrix(get.adjacency(g.out)),directed=T)

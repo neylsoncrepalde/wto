@@ -87,31 +87,31 @@ legend("topleft", "Gini = 0.8396")
 Lc1 <- Lc(atributos[[10]])
 p1 <- Lc1$p
 L1 <- Lc1$L
-gg1 <- ggplot(data=NULL,aes(x=p1,y=L1))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+gg1 <- ggplot(data=NULL,aes(x=p1,y=L1))+geom_line(lwd=1,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
   geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
   scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
   labs(title="Lorenz Curve - 2010",x="Share in world total exports",y="")+
-  annotate("text",x=.7,y=.3,label="Gini = 0.8410",size=6)
+  annotate("text",x=.6,y=.3,label="Gini = 0.8410",size=5)
 
 Lc2 <- Lc(atributos2[[10]])
 p2 <- Lc2$p
 L2 <- Lc2$L
-gg2 <- ggplot(data=NULL,aes(x=p2,y=L2))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+gg2 <- ggplot(data=NULL,aes(x=p2,y=L2))+geom_line(lwd=1,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
   geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
   scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
   labs(title="Lorenz Curve - 2011",x="Share in world total exports",y="")+
-  annotate("text",x=.7,y=.3,label="Gini = 0.8248",size=6)
+  annotate("text",x=.6,y=.3,label="Gini = 0.8248",size=5)
 
 Lc3 <- Lc(atributos3[[10]])
 p3 <- Lc3$p
 L3 <- Lc3$L
-gg3 <- ggplot(data=NULL,aes(x=p3,y=L3))+geom_line(lwd=1.2,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
+gg3 <- ggplot(data=NULL,aes(x=p3,y=L3))+geom_line(lwd=1,color="darkred")+geom_abline(intercept=0,slope=1)+theme_bw()+
   geom_hline(yintercept = 0)+geom_vline(xintercept = 1)+
   scale_y_continuous(breaks=seq(from=0,to=1,by=.1))+scale_x_continuous(breaks=seq(from=0,to=1,by=.1))+
   labs(title="Lorenz Curve - 2014",x="Share in world total exports",y="")+
-  annotate("text",x=.7,y=.3,label="Gini = 0.8396",size=6)
+  annotate("text",x=.6,y=.3,label="Gini = 0.8396",size=5)
 
-multiplot(gg1,gg2,gg3, cols=3)
+multiplot(gg1,gg2,gg3,cols=3)
 
 # Analisando o Gini
 gini11 <- ineq(atributos[[8]], type = "Gini")

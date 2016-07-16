@@ -131,6 +131,47 @@ ggplot(data=data, aes(x=year, y=value, color=variable))+geom_line(lwd=1)+geom_po
                               "Share in world total exports"))+
   theme_light()+theme(legend.position="top",legend.text=element_text(size=12))
 
+################################################################
+# exportando a rede e os atributos para o pajek
+# escrevendo as funcoes
+savenetwork <- function(n,direct,twomode=1){
+  if ((dim(n)[1] == dim(n)[2]) & (twomode!=2))
+  { write(paste("*Vertices",dim(n)[1]), file = direct);
+    write(paste(seq(1,length=dim(n)[1]),' "',rownames(n),'"',sep=""), file = direct,append=TRUE);
+    write("*Arcs", file = direct,append=TRUE);
+    for (i in 1:dim(n)[1]) {
+      for (j in 1:dim(n)[2]) {
+        if (n[i,j]!=0) {write(paste(i,j,n[i,j]),file = direct,append=TRUE)}
+      }
+    } }
+  else
+  { write(paste("*Vertices",sum(dim(n)),dim(n)[1]), file = direct);
+    write(paste(1:dim(n)[1],' "',rownames(n),'"',sep=""), file = direct,append=TRUE);
+    write(paste(seq(dim(n)[1]+1,length=dim(n)[2]),' "',colnames(n),'"',sep=""), file = direct,append=TRUE);
+    write("*Edges", file = direct,append=TRUE);
+    for (i in 1:dim(n)[1]) {
+      for (j in 1:dim(n)[2]) {
+        if (n[i,j]!=0) {write(paste(i,j+dim(n)[1],n[i,j]),file = direct,append=TRUE)}
+      }
+    } } }
+
+savevector <- function(v,direct){write(c(paste("*Vertices",length(v)), v), file = direct, ncolumns=1)}
+#########
+#salvando as redes
+savenetwork(as.matrix(get.adjacency(g.out)),
+           "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_out.net")
+savenetwork(as.matrix(get.adjacency(g.out2)),
+            "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_out2.net")
+savenetwork(as.matrix(get.adjacency(g.out3)),
+            "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_out3.net")
+savenetwork(as.matrix(get.adjacency(g.in)),
+            "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_in.net")
+savenetwork(as.matrix(get.adjacency(g.in2)),
+            "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_in2.net")
+savenetwork(as.matrix(get.adjacency(g.in3)),
+            "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_in3.net")
+#salvando o banco de dados de atributos
+write.csv(atributos, "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/Pajek/wto_atributos.csv")
 
 #######################
 n.out <- network(as.matrix(get.adjacency(g.out)),directed=T)

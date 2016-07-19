@@ -80,6 +80,28 @@ colnames(atributos)[2:10] <- attr.name
 rede.out <- na.omit(rede.out)
 g.out <- graph_from_edgelist(as.matrix(rede.out[,1:2]), directed = T)
 E(g.out)$weight = rede.out[[3]]
+V(g.out)$name[72] = "CotedIvoire"
+
+# Atributos
+name1 <- V(g.out)$name
+nomes.df <- data.frame(name1, 1:length(name1))
+nomes.df <- nomes.df[order(nomes.df$name1),]
+atributos$Country[33] <- "CotedIvoire"
+atributos <- atributos[order(atributos$Country),]
+nomes.df.merge <- merge(nomes.df, atributos, by.x = "name1", by.y = "Country", all.x = T, incomparables = NA)
+atributos.order <- nomes.df.merge[order(nomes.df.merge$X1.length.name1.),]
+names(atributos.order)[2] <- "id"
+atributos.order$name1 %<>% as.character
+
+#Adicionando atributos
+V(g.out)$populacao <- atributos.order[[3]]
+V(g.out)$GDP       <- atributos.order[[4]]
+V(g.out)$balance   <- atributos.order[[6]]
+V(g.out)$tradepercapita <- atributos.order[[7]]
+V(g.out)$tradeGDP  <- atributos.order[[8]]
+V(g.out)$exports   <- atributos.order[[9]]
+V(g.out)$imports   <- atributos.order[[10]]
+V(g.out)$share     <- atributos.order[[11]]
 plot(g.out, edge.arrow.size=.2, vertex.size=4,vertex.label.cex=.7,edge.curved=T, main="Exports")
 
 # Rede importacao

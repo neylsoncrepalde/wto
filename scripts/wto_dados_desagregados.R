@@ -5,6 +5,7 @@
 library(magrittr)
 library(gdata)
 library(igraph)
+library(dplyr)
 
 my.to.numeric <- function(x){
   library(magrittr)
@@ -92,6 +93,9 @@ nomes.df.merge <- merge(nomes.df, atributos, by.x = "name1", by.y = "Country", a
 atributos.order <- nomes.df.merge[order(nomes.df.merge$X1.length.name1.),]
 names(atributos.order)[2] <- "id"
 atributos.order$name1 %<>% as.character
+for (i in 2:10) {
+  atributos.order[[i]] %<>% recode(., .missing=0)
+  }
 
 #Adicionando atributos
 V(g.out)$populacao <- atributos.order[[3]]

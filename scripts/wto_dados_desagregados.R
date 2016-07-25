@@ -5,7 +5,6 @@
 library(magrittr)
 library(gdata)
 library(igraph)
-library(dplyr)
 
 my.to.numeric <- function(x){
   library(magrittr)
@@ -13,7 +12,7 @@ my.to.numeric <- function(x){
   return(x)
 }
 
-path <- "C:/Users/giars/Documents/Neylson/WTO/2012/" #o caminho do diretorio (ajustar)
+path <- "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/2010/" #o caminho do diretorio (ajustar)
 files <- list.files(path = path, pattern='[.]xls')    #lista os nomes dos arquivos
 sites <- paste0(path,files)                           #cola as duas informacoes para realizar o loop
 
@@ -26,35 +25,35 @@ contador <- 1
 ##############################################################
 # Efetuando a coleta de dados via for loop
 for (i in 1:length(sites)){
-print(contador)
-
-#importando os dados
-#E necessario ter o PERL instalado. Consultar https://www.perl.org/get.html
-df <- read.xls(sites[i], stringsAsFactors=F)
-#View(df)
-
-#pais em questao e limpeza
-pais <- df[1,1]
-pais %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
-
-#separando as colunas de interesse - lacos e pesos
-dados <- df[42:46,c(1,6,8,13)]
-#dados
-
-#limpando os dados
-dados[[2]] %<>% gsub(" ","",.) %>% as.numeric
-dados[[4]] %<>% gsub(" ","",.) %>% as.numeric
-dados[[1]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
-dados[[3]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
-#dados
-
-
-# montando a lista de lacos
-rede.out1 <- data.frame(pais, dados[[1]], weights=dados[[2]])
-rede.in1  <- data.frame(dados[[3]], pais, weights=dados[[4]])
-rede.out  <- rbind(rede.out, rede.out1)
-rede.in   <- rbind(rede.in, rede.in1)
-
+  print(contador)
+  
+  #importando os dados
+  #E necessario ter o PERL instalado. Consultar https://www.perl.org/get.html
+  df <- read.xls(sites[i], stringsAsFactors=F)
+  #View(df)
+  
+  #pais em questao e limpeza
+  pais <- df[1,1]
+  pais %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
+  
+  #separando as colunas de interesse - lacos e pesos
+  dados <- df[42:46,c(1,6,8,13)]
+  #dados
+  
+  #limpando os dados
+  dados[[2]] %<>% gsub(" ","",.) %>% as.numeric
+  dados[[4]] %<>% gsub(" ","",.) %>% as.numeric
+  dados[[1]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
+  dados[[3]] %<>% gsub("[[:digit:]]","",.) %>% gsub("[[:punct:]]","",.) %>% gsub("\\s","",.)
+  #dados
+  
+  
+  # montando a lista de lacos
+  rede.out1 <- data.frame(pais, dados[[1]], weights=dados[[2]])
+  rede.in1  <- data.frame(dados[[3]], pais, weights=dados[[4]])
+  rede.out  <- rbind(rede.out, rede.out1)
+  rede.in   <- rbind(rede.in, rede.in1)
+  
   #capturando os atributos
   attr.values <- df[c(3:8,32,33,35),6]
   attr.values %<>% gsub(" ","",.) %>% as.numeric
@@ -93,9 +92,14 @@ nomes.df.merge <- merge(nomes.df, atributos, by.x = "name1", by.y = "Country", a
 atributos.order <- nomes.df.merge[order(nomes.df.merge$X1.length.name1.),]
 names(atributos.order)[2] <- "id"
 atributos.order$name1 %<>% as.character
-for (i in 2:10) {
-  atributos.order[[i]] %<>% recode(., .missing=0)
-  }
+
+#Verificando quais países não tem informações
+sem.na <- atributos.order %>% na.omit(.) %>% .[[2]]
+excluir <- which(atributos.order[[2]] %in% sem.na ==F)
+
+#Retirando os países
+atributos.order %<>% na.omit
+g.out <- delete_vertices(g.out, excluir)
 
 #Adicionando atributos
 V(g.out)$populacao <- atributos.order[[3]]

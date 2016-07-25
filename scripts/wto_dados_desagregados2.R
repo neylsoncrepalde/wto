@@ -81,6 +81,9 @@ nomes.df.merge2 <- merge(nomes.df2, atributos2, by.x = "name2", by.y = "Country"
 atributos.order2 <- nomes.df.merge2[order(nomes.df.merge2$X1.length.name2.),]
 names(atributos.order2)[2] <- "id"
 atributos.order2$name2 %<>% as.character
+for (i in 2:10) {
+  atributos.order2[[i]] %<>% recode(., .missing=0)
+  }
 
 #Adicionando atributos
 V(g.out2)$populacao <- atributos.order2[[3]]

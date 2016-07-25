@@ -134,8 +134,8 @@ data %<>% reshape2::melt(.,id="year")
 ggplot(data=data, aes(x=year, y=value, color=variable))+geom_line(lwd=1)+geom_point(size=3)+
   ylim(.8,.85)+labs(x="",y="Gini Coefficient",title="World Exports")+
   scale_color_discrete(name="",
-                     labels=c("Merchandise Exports, f.o.b. (million US$)",
-                              "Share in world total exports"))+
+                       labels=c("Merchandise Exports, f.o.b. (million US$)",
+                                "Share in world total exports"))+
   theme_light()+theme(legend.position="top",legend.text=element_text(size=12))
 
 ###############################
@@ -144,11 +144,11 @@ names(atributos.order)[1:7] <- c("name","Population (thousands)","GDP (million c
                                  "Current account balance (million US$)","Trade per capita (US$, last 3 years)",
                                  "Trade to GDP ratio (last 3 years)")
 names(atributos.order2)[1:7] <- c("name","Population (thousands)","GDP (million current US$)","GDP (million current PPP US$)",
-                                 "Current account balance (million US$)","Trade per capita (US$, last 3 years)",
-                                 "Trade to GDP ratio (last 3 years)")
+                                  "Current account balance (million US$)","Trade per capita (US$, last 3 years)",
+                                  "Trade to GDP ratio (last 3 years)")
 names(atributos.order3)[1:7] <- c("name","Population (thousands)","GDP (million current US$)","GDP (million current PPP US$)",
-                                 "Current account balance (million US$)","Trade per capita (US$, last 3 years)",
-                                 "Trade to GDP ratio (last 3 years)")
+                                  "Current account balance (million US$)","Trade per capita (US$, last 3 years)",
+                                  "Trade to GDP ratio (last 3 years)")
 
 atributos.order.completo <- rbind(atributos.order,atributos.order2,atributos.order3)
 atributos.EURO <- atributos.order.completo[atributos.order.completo$name=="EuropeanUnion",]
@@ -241,7 +241,21 @@ render.animation(wto.out, render.par = list(tween.frames=1, show.time=T))
 #filmstrip(wto.out, frames=4, displaylabels=F)
 proximity.timeline(wto.out)
 
-formation <- formula(~edges+gwesp(1,fixed=T)+gwodegree(1)+edges.ageinterval)
+formation <- formula(~edges+
+                       gwesp(1,fixed=T)+gwodegree(1, fixed=T)+istar(3)+transitive)
+                     #+
+                     #   absdiff("exports")+absdiff("imports")+
+                     #   absdiff("GDP")+absdiff("populacao")+
+                     #   absdiff("share")+absdiff("tradepercapita"))
 dissolution <- formation
-#tempfit <- stergm(wto.out, formation, dissolution, estimate = "CMLE")
 
+#Medindo o tempo da estimação sem paralelismo
+system.time(
+  tempfit <- stergm(wto.out, formation, dissolution, estimate = "CMLE")
+)
+
+#Medindo o tempo da estimação com computação paralela
+system.time(
+  tempfit.par <- stergm(wto.out, formation, dissolution, estimate = "CMLE", 
+                        control=control.stergm(parallel=2,parallel.type="PSOCK"))
+)

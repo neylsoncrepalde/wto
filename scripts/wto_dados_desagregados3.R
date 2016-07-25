@@ -83,9 +83,14 @@ nomes.df.merge3 <- merge(nomes.df3, atributos3, by.x = "name3", by.y = "Country"
 atributos.order3 <- nomes.df.merge3[order(nomes.df.merge3$X1.length.name3.),]
 names(atributos.order3)[2] <- "id"
 atributos.order3$name3 %<>% as.character
-for (i in 2:10) {
-  atributos.order3[[i]] %<>% recode(., .missing=0)
-  }
+
+#Verificando quais países não tem informações
+sem.na <- atributos.order3 %>% na.omit(.) %>% .[[2]]
+excluir <- which(atributos.order3[[2]] %in% sem.na ==F)
+
+#Retirando os países
+atributos.order3 %<>% na.omit
+g.out3 <- delete_vertices(g.out3, excluir)
 
 #Adicionando atributos
 V(g.out3)$populacao <- atributos.order3[[3]]

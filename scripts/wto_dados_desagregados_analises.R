@@ -222,6 +222,24 @@ CHINA6 <- ggplot(data=CHINA.melt[c(19:21,28:30),], aes(x=Year, y=as.numeric(valu
 
 multiplot(CHINA1,CHINA2,CHINA3,CHINA4,CHINA5,CHINA6, cols=3)
 
+#######################
+# Pegando a interseção entre as redes wto
+
+intersecao1 = intersect(atributos.order$name1, atributos.order2$name2)
+intersecao2 = intersect(atributos.order$name1, atributos.order3$name3)
+intersecao.final = intersect(intersecao1, intersecao2)
+
+g.intersect = intersection(g.out, g.out2, g.out3, keep.all.vertices = F)
+names.int = V(g.intersect)$name
+names.int == intersecao.final
+
+excluir.g.out = which(V(g.out)$name %in% names.int == F)
+excluir.g.out2 = which(V(g.out2)$name %in% names.int == F)
+excluir.g.out3 = which(V(g.out3)$name %in% names.int == F)
+
+g.out = delete_vertices(g.out, excluir.g.out)
+g.out2 = delete_vertices(g.out2, excluir.g.out2)
+g.out3 = delete_vertices(g.out3, excluir.g.out3)
 
 #######################
 #modelando as redes com TERGM

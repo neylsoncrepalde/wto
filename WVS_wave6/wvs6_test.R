@@ -209,3 +209,9 @@ wvs6[wvs6$V2 == 916,] = 'Flanders-Belgium'
 wvs6[wvs6$V2 == 917,] = 'Israel (Jews)'
 wvs6[wvs6$V2 == 918,] = 'Israel (Arabs)'
 
+wvs.paises = unique(wvs6$V2)
+
+#Depois de rodar o script wto_dados_desagregados_analises.R
+
+wvs.int <- intersect(intersecao.final, wvs.paises)
+which(intersecao.final %in% wvs.paises ==T)

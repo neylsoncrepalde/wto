@@ -12,6 +12,7 @@ library(ndtv)
 library(ineq)
 library(ggplot2)
 library(reshape2)
+library(texreg)
 
 ################################
 # Multiple plot function
@@ -222,6 +223,7 @@ CHINA6 <- ggplot(data=CHINA.melt[c(19:21,28:30),], aes(x=Year, y=as.numeric(valu
 
 multiplot(CHINA1,CHINA2,CHINA3,CHINA4,CHINA5,CHINA6, cols=3)
 
+
 #######################
 # Pegando a interseção entre as redes wto
 
@@ -231,25 +233,28 @@ intersecao.final = intersect(intersecao1, intersecao2)
 
 g.intersect = intersection(g.out, g.out2, g.out3, keep.all.vertices = F)
 names.int = V(g.intersect)$name
-names.int == intersecao.final
+excluir.g.out = which(atributos.order[[1]] %in% names.int == F)
+excluir.g.out2 = which(atributos.order2[[1]] %in% names.int == F)
+excluir.g.out3 = which(atributos.order3[[1]] %in% names.int == F)
 
-excluir.g.out = which(V(g.out)$name %in% names.int == F)
-excluir.g.out2 = which(V(g.out2)$name %in% names.int == F)
-excluir.g.out3 = which(V(g.out3)$name %in% names.int == F)
+g.out.int = delete_vertices(g.out, excluir.g.out)
+g.out2.int = delete_vertices(g.out2, excluir.g.out2)
+g.out3.int = delete_vertices(g.out3, excluir.g.out3)
 
-g.out = delete_vertices(g.out, excluir.g.out)
-g.out2 = delete_vertices(g.out2, excluir.g.out2)
-g.out3 = delete_vertices(g.out3, excluir.g.out3)
+#Estamos chegando no mesmo resultado?
+which(V(g.out3.int)$name %in% V(g.out.int)$name == F)
+sort(V(g.out.int)$name) == sort(V(g.out3.int)$name)
+#sim
 
-#######################
+###############################
 #modelando as redes com TERGM
-n.out <- asNetwork(g.out)
-n.out2 <- asNetwork(g.out2)
-n.out3 <- asNetwork(g.out3)
+n.out <- asNetwork(g.out.int)
+n.out2 <- asNetwork(g.out2.int)
+n.out3 <- asNetwork(g.out3.int)
 par(mfrow=c(1,3))
-plot(n.out, main="WTO network, t1", edge.col="grey52")
-plot(n.out2, main="WTO network, t2", edge.col="grey52")
-plot(n.out3, main="WTO network, t3", edge.col="grey52")
+#plot(n.out, main="WTO network, t1", edge.col="grey52")
+#plot(n.out2, main="WTO network, t2", edge.col="grey52")
+#plot(n.out3, main="WTO network, t3", edge.col="grey52")
 par(mfrow=c(1,1))
 
 wto.out <- networkDynamic(network.list = list(n.out, n.out2, n.out3),
@@ -259,21 +264,41 @@ render.animation(wto.out, render.par = list(tween.frames=1, show.time=T))
 #filmstrip(wto.out, frames=4, displaylabels=F)
 proximity.timeline(wto.out)
 
-formation <- formula(~edges+
-                       gwesp(1,fixed=T)+gwodegree(1, fixed=T)+istar(3)+transitive)
-                     #+
-                     #   absdiff("exports")+absdiff("imports")+
-                     #   absdiff("GDP")+absdiff("populacao")+
-                     #   absdiff("share")+absdiff("tradepercapita"))
-dissolution <- formation
+#########
+#Teste
+#model = formula(n.out3~edges+gwesp(1,fixed=T)+gwodegree(1, fixed=T)+istar(3)+transitive+
+#                       nodecov("exports")+nodecov("imports")+nodecov("GDP")+nodecov("populacao"))
 
-#Medindo o tempo da estimação sem paralelismo
+#################
+#Verificando os atributos da rede temporal
+#wto.out %v% "populacao.active"
+summary.statistics(wto.out~edges+mutual+gwesp(1.3,fixed=F)+gwidegree(1, fixed=F)+
+                     gwodegree(1, fixed=F)+m2star+ctriple+
+                     nodecov("exports.active")+nodecov("imports.active")+
+                     nodecov("GDP.active")+nodecov("populacao.active"))
+
+########################################################
+#Montando o modelo
+formation <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
+                       gwodegree(1, fixed=T)+ctriple+istar(4)+
+                       nodeocov("share")+nodeocov("tradepercapita"))
+
+dissolution <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
+                         gwodegree(1, fixed=T)+ctriple)
+
+#STERGM
 system.time(
-  tempfit <- stergm(wto.out, formation, dissolution, estimate = "CMLE")
+  tempfit.par <- stergm(list(n.out, n.out2, n.out3), formation, dissolution, estimate = "CMLE",
+                        control=control.stergm(parallel=8,parallel.type="PSOCK"))
 )
 
-#Medindo o tempo da estimação com computação paralela
+#summary(tempfit.par)
+
+#texreg(tempfit.par, single.row = T, digits = 3)
 system.time(
-  tempfit.par <- stergm(wto.out, formation, dissolution, estimate = "CMLE", 
-                        control=control.stergm(parallel=2,parallel.type="PSOCK"))
+  gof.temp <- gof(tempfit.par)
 )
+
+par(mfrow=c(1,4))
+plot(gof.temp)
+par(mfrow=c(1,1))

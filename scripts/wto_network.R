@@ -3,7 +3,8 @@
 #GIARS
 
 library(magrittr)
-library(readr)
+library(bit64)
+library(data.table)
 library(descr)
 library(ggplot2)
 library(igraph)
@@ -11,11 +12,9 @@ library(intergraph)
 library(statnet)
 
 keep = c(5,6,9,10,11,12,15,16)
-#dados <- fread("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/ne2_e.csv",
-#               stringsAsFactors = F, select = keep)
-dados <- read_csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/ne2_e.csv")
-dados <- dados[,keep]
-dados %<>% .[-nrow(dados),]
+dados <- as.data.frame(fread("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/ne2_e.csv",
+               select = keep))
+
 dados <- dados[dados$Country_desc!="World",]
 USA <- dados[dados$Country_code=="US" & dados$Indicator_desc == "Total merchandise",]
 

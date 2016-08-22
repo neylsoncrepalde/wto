@@ -285,9 +285,22 @@ render.animation(wto.out, render.par = list(tween.frames=1, show.time=T))
 proximity.timeline(wto.out)
 
 #########
-#Teste
-#model = formula(n.out3~edges+gwesp(1,fixed=T)+gwodegree(1, fixed=T)+istar(3)+transitive+
-#                       nodecov("exports")+nodecov("imports")+nodecov("GDP")+nodecov("populacao"))
+# ERGM n.out3
+model = formula(n.out3~edges+mutual+gwesp(1,fixed=T)+gwidegree(1, fixed=T)+
+                  ctriple+idegreepopularity+
+                  nodecov("PIB.CeT")+nodecov("Gasto.Educ")+nodecov("GINI")+
+                  nodecov("Homicidios"))
+
+summary.statistics(model)
+
+fit <- ergm(model, control=control.ergm(parallel = 8, parallel.type = "PSOCK"))
+summary(fit)
+
+gof <- gof(fit)
+par(mfrow=c(1,4))
+plot(gof)
+par(mfrow=c(1,1))
+
 
 #################
 #Verificando os atributos da rede temporal

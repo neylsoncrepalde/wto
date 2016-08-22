@@ -286,14 +286,17 @@ proximity.timeline(wto.out)
 
 #########
 # ERGM n.out3
-model = formula(n.out3~edges+mutual+gwesp(1,fixed=T)+gwidegree(1, fixed=T)+
-                  gwodegree(1, fixed=T)+trasitive+balance+
+model = formula(n.out3~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
+                  gwodegree(1, fixed=T)+istar(4)+balance+transitive+
                   nodecov("PIB.CeT")+nodecov("Gasto.Educ")+nodecov("GINI")+
-                  nodecov("Homicidios"))
+                  nodecov("Homicidios")+nodecov("Media.de.artigos")+
+                  nodecov("Patentes")+nodecov("Pobreza.ext")+
+                  nodecov("Cresc.valor.agreg")+nodecov("Baixas"))
 
 summary.statistics(model)
 
-fit <- ergm(model, control=control.ergm(parallel = 8, parallel.type = "PSOCK", main.method="Stepping"))
+fit <- ergm(model, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+                                        main.method="Stepping"))
 summary(fit)
 
 gof <- gof(fit)

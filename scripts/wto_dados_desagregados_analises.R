@@ -13,6 +13,7 @@ library(ineq)
 library(ggplot2)
 library(reshape2)
 library(texreg)
+library(gdata)
 
 ################################
 # Multiple plot function

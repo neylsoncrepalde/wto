@@ -287,7 +287,7 @@ proximity.timeline(wto.out)
 #########
 # ERGM n.out3
 model = formula(n.out3~edges+mutual+gwesp(1,fixed=T)+gwidegree(1, fixed=T)+
-                  ctriple+idegreepopularity+
+                  gwodegree(1, fixed=T)+trasitive+balance+
                   nodecov("PIB.CeT")+nodecov("Gasto.Educ")+nodecov("GINI")+
                   nodecov("Homicidios"))
 

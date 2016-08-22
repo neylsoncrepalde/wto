@@ -293,7 +293,7 @@ model = formula(n.out3~edges+mutual+gwesp(1,fixed=T)+gwidegree(1, fixed=T)+
 
 summary.statistics(model)
 
-fit <- ergm(model, control=control.ergm(parallel = 8, parallel.type = "PSOCK"))
+fit <- ergm(model, control=control.ergm(parallel = 8, parallel.type = "PSOCK", main.method="Stepping"))
 summary(fit)
 
 gof <- gof(fit)

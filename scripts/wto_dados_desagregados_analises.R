@@ -253,7 +253,7 @@ dados <- read.xls("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_g
                   stringsAsFactors = F, header=T)
 
 # Substituindo os zeros por NA
-dados <- as.data.frame(sapply(dados[,1:10], function(x) car::recode(x, "0=NA")), stringsAsFactors = F)
+dados <- as.data.frame(sapply(dados[,1:10], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
 View(dados)
 names(dados)
 V(g.out3.int)$PIB.CeT            <- dados$PIB.CeT

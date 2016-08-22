@@ -247,6 +247,25 @@ which(V(g.out3.int)$name %in% V(g.out.int)$name == F)
 sort(V(g.out.int)$name) == sort(V(g.out3.int)$name)
 #sim
 
+#####################
+# Acrescentando atributos do banco mundial
+dados <- read.xls("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/wto_atributos.xls",
+                  stringsAsFactors = F, header=T)
+
+# Substituindo os zeros por NA
+dados <- as.data.frame(sapply(dados[,1:10], function(x) car::recode(x, "0=NA")), stringsAsFactors = F)
+View(dados)
+names(dados)
+V(g.out3.int)$PIB.CeT            <- dados$PIB.CeT
+V(g.out3.int)$Media.de.artigos   <- dados$Media.de.artigos
+V(g.out3.int)$Patentes           <- dados$Patentes
+V(g.out3.int)$Gasto.Educ         <- dados$Gasto.Educ
+V(g.out3.int)$Cresc.valor.agreg  <- dados$Cresc.valor.agreg
+V(g.out3.int)$Baixas             <- dados$Baixas
+V(g.out3.int)$Homicidios         <- dados$Homicidios
+V(g.out3.int)$Pobreza.ext        <- dados$Pobreza.ext
+V(g.out3.int)$GINI               <- dados$GINI
+
 ###############################
 #modelando as redes com TERGM
 n.out <- asNetwork(g.out.int)

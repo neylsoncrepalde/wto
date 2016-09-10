@@ -266,6 +266,50 @@ V(g.out3.int)$Homicidios         <- dados$Homicidios
 V(g.out3.int)$Pobreza.ext        <- dados$Pobreza.ext
 V(g.out3.int)$GINI               <- dados$GINI
 
+#==================================
+# Blockmodelling
+
+library(mixer)
+mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 4, qmax = 8, directed = T)
+bm.output <- getModel(mix)
+bm.output$Pis # Class connectivity matrix
+plot(mix)
+
+grupos <-c()
+
+for (i in 1:ncol(bm.output$Taus)){
+  grupos[i] <- which.max(bm.output$Taus[,i])
+}
+
+plot(g.out3.int, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
+     vertex.size = 4 ,layout=layout_with_fr)
+title(main="Blockmodelling")
+
+#Reduzindo a rede aos blocos
+V(g.out3.int)$bloco <- grupos
+
+g.blocos <- contract.vertices(g.out3.int, as.factor(V(g.out3.int)$bloco),
+                              vertex.attr.comb = list(inst=toString, "ignore"))
+V(g.blocos)$bloco
+V(g.blocos)$name <- levels(as.factor(grupos))
+indeg.blocos <- igraph::degree(g.blocos, mode = "in")
+
+plot(g.blocos, edge.arrow.size=.3, layout=layout_with_kk,
+     vertex.size=indeg.blocos/100)
+
+# A china ficou sozinho no bloco 5, UE e EUA ficaram no grupo 4.
+# Para estimações talvez seja interessante colocar os big three num mesmo bloco
+# representando o centro.
+
+
+
+
+# Regressão linear
+indeg <- igraph::degree(g.out3.int, mode="in")
+dados <- cbind(dados, indeg)
+names(dados)
+
+
 ###############################
 #modelando as redes com TERGM
 n.out <- asNetwork(g.out.int)

@@ -82,7 +82,7 @@ for xlsfile in xlsfiles:
 
 
 # os nomes das variáveis ainda não aparecem
-    if xlsfiles == xlsfiles[0]:
+    if xlsfile == xlsfiles[0]:
         atributos.writerows(atrib_names, atrib_values)
     else:
         atributos.writerow(atrib_values)

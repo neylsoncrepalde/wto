@@ -6,8 +6,8 @@ source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados
 source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados2.R")
 source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados3.R")
 
-library(statnet)
-library(intergraph)
+#library(statnet)
+#library(intergraph)
 library(ndtv)
 library(ineq)
 library(ggplot2)
@@ -270,7 +270,7 @@ V(g.out3.int)$GINI               <- dados$GINI
 # Blockmodelling
 
 library(mixer)
-mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 4, qmax = 8, directed = T)
+mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 4, qmax = 6, directed = T)
 bm.output <- getModel(mix)
 bm.output$Pis # Class connectivity matrix
 plot(mix)
@@ -294,8 +294,9 @@ V(g.blocos)$bloco
 V(g.blocos)$name <- levels(as.factor(grupos))
 indeg.blocos <- igraph::degree(g.blocos, mode = "in")
 
-plot(g.blocos, edge.arrow.size=.3, layout=layout_with_kk,
-     vertex.size=indeg.blocos/100)
+plot(g.blocos, edge.arrow.size=.3, vertex.color=as.numeric(V(g.blocos)$name)+2, 
+     vertex.size=indeg.blocos/3, layout=layout_in_circle)
+title(main="World trade - Blocks")
 
 # A china ficou sozinho no bloco 5, UE e EUA ficaram no grupo 4.
 # Para estimações talvez seja interessante colocar os big three num mesmo bloco
@@ -309,6 +310,10 @@ indeg <- igraph::degree(g.out3.int, mode="in")
 dados <- cbind(dados, indeg)
 names(dados)
 
+#Arrumar esse modelo
+#fit1 <- glm(indeg~.-Pais.2014, data=dados, family = Gamma(link=""))
+summary(fit1)
+plot(fit1)
 
 ###############################
 #modelando as redes com TERGM

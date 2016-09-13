@@ -252,9 +252,18 @@ sort(V(g.out.int)$name) == sort(V(g.out3.int)$name)
 dados <- read.xls("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/wto_atributos.xls",
                   stringsAsFactors = F, header=T)
 
+bound <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/WTO Tarifas/bound.csv",
+                  stringsAsFactors = F, header=T)
+library(dplyr)
+names(dados)[1] <- "pais"
+names(bound)[1] <- "pais"
+dados.comp <- left_join(dados, bound)
+
 # Substituindo os zeros por NA
-dados <- as.data.frame(sapply(dados[,1:10], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
-View(dados)
+dados.comp <- as.data.frame(sapply(dados.comp[,1:11], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
+dados <- as.data.frame(sapply(dados.comp[,2:11], function(x) x+0.1, simplify = F), stringsAsFactors = F)
+rownames(dados) <- dados.comp$pais
+#View(dados)
 names(dados)
 V(g.out3.int)$PIB.CeT            <- dados$PIB.CeT
 V(g.out3.int)$Media.de.artigos   <- dados$Media.de.artigos
@@ -265,6 +274,7 @@ V(g.out3.int)$Baixas             <- dados$Baixas
 V(g.out3.int)$Homicidios         <- dados$Homicidios
 V(g.out3.int)$Pobreza.ext        <- dados$Pobreza.ext
 V(g.out3.int)$GINI               <- dados$GINI
+V(g.out3.int)$Bound              <- dados$simple.average.final.bound
 
 #==================================
 # Blockmodelling
@@ -302,18 +312,26 @@ title(main="World trade - Blocks")
 # Para estimações talvez seja interessante colocar os big three num mesmo bloco
 # representando o centro.
 
-
-
-
 # Regressão linear
 indeg <- igraph::degree(g.out3.int, mode="in")
-dados <- cbind(dados, indeg)
-names(dados)
+dados <- cbind(dados, indeg+0.1)
+names(dados)[11] <- "indeg"
 
 #Arrumar esse modelo
-#fit1 <- glm(indeg~.-Pais.2014, data=dados, family = Gamma(link=""))
+
+fit1 <- glm(indeg~., data=dados, family = Gamma(link="log"))
 summary(fit1)
 plot(fit1)
+#Modelo mais ou menos...
+
+# Ajustando modelo logístico multinomial
+library(nnet)
+dados <- cbind(dados, grupos)
+fit.multi <- multinom(grupos~., data=dados)
+summary(fit.multi)
+# texreg...
+
+
 
 ###############################
 #modelando as redes com TERGM

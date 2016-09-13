@@ -321,17 +321,33 @@ names(dados)[11] <- "indeg"
 
 fit1 <- glm(indeg~., data=dados, family = Gamma(link="log"))
 summary(fit1)
+par(mfrow=c(2,2))
 plot(fit1)
+par(mfrow=c(2,2))
+texreg(fit1, caption="GLM - Gamma - Response: In Degree", caption.above = T,
+       center=F, digits = 3, single.row = T)
 #Modelo mais ou menos...
 
 # Ajustando modelo logístico multinomial
 library(nnet)
 dados <- cbind(dados, grupos)
-fit.multi <- multinom(grupos~., data=dados)
+fit.multi <- multinom(factor(grupos, levels = c(3,2,1,5,4))~., data=dados)
 summary(fit.multi)
-# texreg...
 
+texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
+       center=F, digits = 3)
 
+coef.prob <- function(x){
+  or <- exp(x)/(1+exp(x))
+  cat("Coef transformed to Probability\n")
+  return(or)
+}
+
+library(xtable)
+x.coef <- xtable(t(coef.prob(coef(fit.multi))), caption="Probabilities", digits=3)
+print(x.coef)
+
+#yhat <- predict(fit.multi, type = "probs")
 
 ###############################
 #modelando as redes com TERGM

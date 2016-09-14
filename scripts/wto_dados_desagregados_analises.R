@@ -1,4 +1,4 @@
-# WTO Temporal analysis
+# WTO Analysis 1 (multinom / gamma)
 # ANALYSIS
 # Neylson Crepalde
 
@@ -6,14 +6,13 @@ source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados
 source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados2.R")
 source("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/wto_dados_desagregados3.R")
 
-#library(statnet)
-#library(intergraph)
+library(statnet)
+library(intergraph)
 library(ndtv)
 library(ineq)
 library(ggplot2)
 library(reshape2)
 library(texreg)
-library(gdata)
 
 ################################
 # Multiple plot function
@@ -304,13 +303,16 @@ V(g.blocos)$bloco
 V(g.blocos)$name <- levels(as.factor(grupos))
 indeg.blocos <- igraph::degree(g.blocos, mode = "in")
 
-plot(g.blocos, edge.arrow.size=.3, vertex.color=as.numeric(V(g.blocos)$name)+2, 
-     vertex.size=indeg.blocos/3, layout=layout_in_circle)
-title(main="World trade - Blocks")
+plot(g.blocos, edge.arrow.size=.3, layout=layout_in_circle, 
+     vertex.label=V(g.blocos)$name, vertex.size=indeg.blocos/3, 
+     vertex.color=as.numeric(V(g.blocos)$name)+2)
 
 # A china ficou sozinho no bloco 5, UE e EUA ficaram no grupo 4.
 # Para estimações talvez seja interessante colocar os big three num mesmo bloco
 # representando o centro.
+
+
+
 
 # Regressão linear
 indeg <- igraph::degree(g.out3.int, mode="in")
@@ -348,76 +350,3 @@ x.coef <- xtable(t(coef.prob(coef(fit.multi))), caption="Probabilities", digits=
 print(x.coef)
 
 #yhat <- predict(fit.multi, type = "probs")
-
-###############################
-#modelando as redes com TERGM
-n.out <- asNetwork(g.out.int)
-n.out2 <- asNetwork(g.out2.int)
-n.out3 <- asNetwork(g.out3.int)
-par(mfrow=c(1,3))
-#plot(n.out, main="WTO network, t1", edge.col="grey52")
-#plot(n.out2, main="WTO network, t2", edge.col="grey52")
-#plot(n.out3, main="WTO network, t3", edge.col="grey52")
-par(mfrow=c(1,1))
-
-wto.out <- networkDynamic(network.list = list(n.out, n.out2, n.out3),
-                          vertex.pid = "vertex.names", create.TEAs = T)
-
-render.animation(wto.out, render.par = list(tween.frames=1, show.time=T))
-#filmstrip(wto.out, frames=4, displaylabels=F)
-proximity.timeline(wto.out)
-
-#########
-# ERGM n.out3
-model = formula(n.out3~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
-                  gwodegree(1, fixed=T)+istar(4)+balance+transitive+
-                  nodecov("PIB.CeT")+nodecov("Gasto.Educ")+nodecov("GINI")+
-                  nodecov("Homicidios")+nodecov("Media.de.artigos")+
-                  nodecov("Patentes")+nodecov("Pobreza.ext")+
-                  nodecov("Cresc.valor.agreg")+nodecov("Baixas"))
-
-summary.statistics(model)
-
-fit <- ergm(model, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
-                                        main.method="Stepping"))
-summary(fit)
-
-gof <- gof(fit)
-par(mfrow=c(1,4))
-plot(gof)
-par(mfrow=c(1,1))
-
-
-#################
-#Verificando os atributos da rede temporal
-#wto.out %v% "populacao.active"
-summary.statistics(wto.out~edges+mutual+gwesp(1.3,fixed=F)+gwidegree(1, fixed=F)+
-                     gwodegree(1, fixed=F)+m2star+ctriple+
-                     nodecov("exports.active")+nodecov("imports.active")+
-                     nodecov("GDP.active")+nodecov("populacao.active"))
-
-########################################################
-#Montando o modelo
-formation <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
-                       gwodegree(1, fixed=T)+ctriple+istar(4)+
-                       nodeocov("share")+nodeocov("tradepercapita"))
-
-dissolution <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
-                         gwodegree(1, fixed=T)+ctriple)
-
-#STERGM
-system.time(
-  tempfit.par <- stergm(list(n.out, n.out2, n.out3), formation, dissolution, estimate = "CMLE",
-                        control=control.stergm(parallel=8,parallel.type="PSOCK"))
-)
-
-#summary(tempfit.par)
-
-#texreg(tempfit.par, single.row = T, digits = 3)
-system.time(
-  gof.temp <- gof(tempfit.par)
-)
-
-par(mfrow=c(1,4))
-plot(gof.temp)
-par(mfrow=c(1,1))

@@ -58,31 +58,66 @@ par(mfrow=c(1,1))
 
 #########
 # ERGM n.out3
-model = formula(n.out3~edges+mutual+gwesp(1.4,fixed=T)+gwidegree(1, fixed=T)+
+model3 = formula(n.out3~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
                   gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
                   nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                  nodeicov("populacao"))
+                  nodeicov("populacao")+nodeicov("Bound"))
 
-summary.statistics(model)
+summary.statistics(model3)
 
-fit <- ergm(model, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+fit3 <- ergm(model3, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
                                         main.method="Stepping"))
-summary(fit)
+summary(fit3)
 
-gof <- gof(fit)
+gof3 <- gof(fit3)
 par(mfrow=c(1,4))
-plot(gof)
+plot(gof3)
 par(mfrow=c(1,1))
+texreg(fit3, center=F,caption.above=T,caption="ERGM - 2014",digits=3)
 
 #############################
 # ERGM 2
+model2 = formula(n.out2~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
+                  gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
+                  nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                  nodeicov("populacao")+nodeicov("Bound"))
 
+summary.statistics(model2)
 
+fit2 <- ergm(model2, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+                                         main.method="Stepping"))
+summary(fit2)
 
+gof2 <- gof(fit2)
+par(mfrow=c(1,4))
+plot(gof2)
+par(mfrow=c(1,1))
+
+texreg(list(fit2,fit3), center=F,caption.above=T,digits=3,
+       caption="ERGM - 2011, 2014",
+       custom.model.names=c("ERGM - 2011","ERGM - 2014"))
 
 #################################
 # ERGM 1
+model1 = formula(n.out~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
+                   gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
+                   nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                   nodeicov("populacao")+nodeicov("Bound"))
 
+summary.statistics(model1)
+
+fit1 <- ergm(model1, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+                                          main.method="Stepping"))
+summary(fit1)
+
+gof1 <- gof(fit1)
+par(mfrow=c(1,4))
+plot(gof1)
+par(mfrow=c(1,1))
+
+texreg(list(fit1,fit2,fit3), center=F,caption.above=T,digits=3,
+       caption="ERGM - 2010, 2011, 2014",
+       custom.model.names=c("ERGM - 2010","ERGM - 2011","ERGM - 2014"))
 
 
 #################
@@ -102,19 +137,23 @@ summary.statistics(wto.out~edges+mutual+gwesp(1.3,fixed=F)+gwidegree(1, fixed=F)
 
 ########################################################
 #Montando o modelo
-formation <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
-                       gwodegree(1, fixed=T)+ctriple+istar(4)+
-                       nodeocov("share")+nodeocov("tradepercapita"))
+######### Parei aqui
+formation <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
+                       gwodegree(1.4, fixed=T)+istar(4)+transitive+
+                       nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                       nodeicov("populacao")+nodeicov("Bound"))
 
-dissolution <- formula(~edges+mutual+gwesp(1.3,fixed=T)+gwidegree(1, fixed=T)+
-                         gwodegree(1, fixed=T)+ctriple)
+dissolution <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
+                         gwodegree(1.4, fixed=T)+istar(4)+transitive+
+                         nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                         nodeicov("populacao")+nodeicov("Bound"))
 
 ########################################
 # STERGM
 ########################################
 system.time(
   tempfit.par <- stergm(list(n.out, n.out2, n.out3), formation, dissolution, estimate = "CMLE",
-                        control=control.stergm(parallel=8,parallel.type="PSOCK"))
+                        control=control.stergm(parallel=4,parallel.type="PSOCK"))
 )
 
 #summary(tempfit.par)

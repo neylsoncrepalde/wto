@@ -59,14 +59,14 @@ par(mfrow=c(1,1))
 #########
 # ERGM n.out3
 model3 = formula(n.out3~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
-                  gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
-                  nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                  nodeicov("populacao")+nodeicov("Bound"))
+                   gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
+                   nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                   nodeicov("populacao")+nodeicov("Bound"))
 
 summary.statistics(model3)
 
 fit3 <- ergm(model3, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
-                                        main.method="Stepping"))
+                                          main.method="Stepping"))
 summary(fit3)
 
 gof3 <- gof(fit3)
@@ -78,14 +78,14 @@ texreg(fit3, center=F,caption.above=T,caption="ERGM - 2014",digits=3)
 #############################
 # ERGM 2
 model2 = formula(n.out2~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
-                  gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
-                  nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                  nodeicov("populacao")+nodeicov("Bound"))
+                   gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
+                   nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
+                   nodeicov("populacao")+nodeicov("Bound"))
 
 summary.statistics(model2)
 
 fit2 <- ergm(model2, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
-                                         main.method="Stepping"))
+                                          main.method="Stepping"))
 summary(fit2)
 
 gof2 <- gof(fit2)
@@ -139,29 +139,28 @@ summary.statistics(wto.out~edges+mutual+gwesp(1.3,fixed=F)+gwidegree(1, fixed=F)
 #Montando o modelo
 ######### Parei aqui
 formation <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
-                       gwodegree(1.4, fixed=T)+istar(4)+transitive+
+                       gwodegree(1.4, fixed=T)+
                        nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
                        nodeicov("populacao")+nodeicov("Bound"))
 
 dissolution <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
-                         gwodegree(1.4, fixed=T)+istar(4)+transitive+
-                         nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                         nodeicov("populacao")+nodeicov("Bound"))
+                         gwodegree(1.4, fixed=T))
 
 ########################################
 # STERGM
 ########################################
-system.time(
-  tempfit.par <- stergm(list(n.out, n.out2, n.out3), formation, dissolution, estimate = "CMLE",
-                        control=control.stergm(parallel=4,parallel.type="PSOCK"))
-)
 
-#summary(tempfit.par)
+tempfit.par <- stergm(list(n.out, n.out2, n.out3), formation, dissolution, estimate = "CMLE",
+                      control=control.stergm(parallel=8,parallel.type="PSOCK"))
 
-#texreg(tempfit.par, single.row = T, digits = 3)
-system.time(
-  gof.temp <- gof(tempfit.par)
-)
+
+summary(tempfit.par)
+
+#texreg(tempfit.par, center=F,caption.above=T,digits=3,
+#       caption="Temporal ERGM (2010, 2011, 2014)",
+#       custom.model.names=c("TERGM"), single.row = T)
+
+gof.temp <- gof(tempfit.par)
 
 par(mfrow=c(1,4))
 plot(gof.temp)

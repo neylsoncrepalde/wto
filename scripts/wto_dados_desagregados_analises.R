@@ -333,11 +333,17 @@ texreg(fit1, caption="GLM - Gamma - Response: In Degree", caption.above = T,
 # Ajustando modelo logístico multinomial
 library(nnet)
 dados <- cbind(dados, grupos)
-fit.multi <- multinom(factor(grupos, levels = c(3,2,1,5,4))~., data=dados)
+
+dados$grupos[6] <- 1 #Colocando a china junto com os BRICS
+periferia <- which(dados$grupos == 3)
+dados$grupos[periferia] <- 2 #Juntando a periferia
+levels(factor(dados$grupos))
+
+fit.multi <- multinom(factor(grupos, levels = c(2,1,4))~., data=dados)
 summary(fit.multi)
 
 texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
-       center=F, digits = 3)
+       center=F, digits = 3, single.row = T)
 
 coef.prob <- function(x){
   or <- exp(x)/(1+exp(x))

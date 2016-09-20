@@ -346,7 +346,7 @@ texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
        center=F, digits = 3, single.row = T)
 
 coef.prob <- function(x){
-  or <- exp(x)/(1+exp(x))
+  or <- exp(x)-1
   cat("Coef transformed to Probability\n")
   return(or)
 }

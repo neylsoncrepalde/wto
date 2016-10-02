@@ -374,3 +374,24 @@ x.coef <- xtable(cbind(t(exp(coef(fit.multi))) ,t(coef.prob(coef(fit.multi)))),
 print(x.coef)
 
 #yhat <- predict(fit.multi, type = "probs")
+names(dados)
+dados$grupos %<>% as.factor
+levels(dados$grupos) <- c("BRICS", "Periphery", "US + EU")
+
+b1 <- ggplot(dados, aes(x=factor(grupos), y=PIB.CeT))+geom_boxplot()+labs(x="")+theme_light()
+b2 <- ggplot(dados, aes(x=factor(grupos), y=Media.de.artigos))+geom_boxplot()+labs(x="")+theme_light()
+b3 <- ggplot(dados, aes(x=factor(grupos), y=Patentes))+geom_boxplot()+labs(x="")+theme_light()
+b4 <- ggplot(dados, aes(x=factor(grupos), y=Gasto.Educ))+geom_boxplot()+labs(x="")+theme_light()
+b5 <- ggplot(dados, aes(x=factor(grupos), y=Cresc.valor.agreg))+geom_boxplot()+labs(x="")+theme_light()
+b6 <- ggplot(dados, aes(x=factor(grupos), y=Baixas))+geom_boxplot()+labs(x="")+theme_light()
+
+multiplot(b1,b2,b3,b4,b5,b6, cols = 3)
+
+b7 <- ggplot(dados, aes(x=factor(grupos), y=Homicidios))+geom_boxplot()+labs(x="")+theme_light()
+b8 <- ggplot(dados, aes(x=factor(grupos), y=Pobreza.ext))+geom_boxplot()+labs(x="")+theme_light()
+b9 <- ggplot(dados, aes(x=factor(grupos), y=GINI))+geom_boxplot()+labs(x="")+theme_light()
+b10 <- ggplot(dados, aes(x=factor(grupos), y=simple.average.final.bound))+geom_boxplot()+labs(x="")+theme_light()
+b11 <- ggplot(dados, aes(x=factor(grupos), y=idh))+geom_boxplot()+labs(x="")+theme_light()
+b12 <- ggplot(dados, aes(x=factor(grupos), y=constraint))+geom_boxplot()+labs(x="")+theme_light()
+
+multiplot(b7,b8,b9,b10,b11,b12, cols = 3)

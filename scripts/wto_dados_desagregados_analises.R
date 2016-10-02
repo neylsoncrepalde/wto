@@ -258,9 +258,16 @@ names(dados)[1] <- "pais"
 names(bound)[1] <- "pais"
 dados.comp <- left_join(dados, bound)
 
-# Substituindo os zeros por NA
-dados.comp <- as.data.frame(sapply(dados.comp[,1:11], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
-dados <- as.data.frame(sapply(dados.comp[,2:11], function(x) x+0.1, simplify = F), stringsAsFactors = F)
+idh <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/idh/idh.csv", stringsAsFactors = F)
+names(idh)[1] <- "pais"
+names(idh)[2] <- "idh"
+dados.comp <- left_join(dados.comp, idh)
+
+dados <- dados.comp[,2:12]
+
+# Substituindo os zeros por NA e transformando o banco em "dados" novamente
+dados.comp <- as.data.frame(sapply(dados.comp[,1:12], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
+dados <- as.data.frame(sapply(dados.comp[,2:12], function(x) x+0.1, simplify = F), stringsAsFactors = F)
 rownames(dados) <- dados.comp$pais
 #View(dados)
 names(dados)
@@ -274,27 +281,33 @@ V(g.out3.int)$Homicidios         <- dados$Homicidios
 V(g.out3.int)$Pobreza.ext        <- dados$Pobreza.ext
 V(g.out3.int)$GINI               <- dados$GINI
 V(g.out3.int)$Bound              <- dados$simple.average.final.bound
+V(g.out3.int)$IDH                <- dados$idh
 
 #==================================
 # Blockmodelling
 
-library(mixer)
-mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 4, qmax = 6, directed = T)
-bm.output <- getModel(mix)
-bm.output$Pis # Class connectivity matrix
-plot(mix)
+#library(mixer)
+#mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 4, qmax = 6, directed = T)
+#bm.output <- getModel(mix)
+#bm.output$Pis # Class connectivity matrix
+#plot(mix)
 
-grupos <-c()
+#grupos <-c()
 
-for (i in 1:ncol(bm.output$Taus)){
-  grupos[i] <- which.max(bm.output$Taus[,i])
-}
+#for (i in 1:ncol(bm.output$Taus)){
+#  grupos[i] <- which.max(bm.output$Taus[,i])
+#}
 
-plot(g.out3.int, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
-     vertex.size = 4 ,layout=layout_with_fr)
-title(main="Blockmodelling")
+#plot(g.out3.int, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
+#     vertex.size = 4 ,layout=layout_with_fr)
+#title(main="Blockmodeling")
+
+#write.csv(grupos, "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", row.names = F, col.names = F)
 
 #Reduzindo a rede aos blocos
+grupos <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", header=F)
+grupos <- grupos$V1
+
 V(g.out3.int)$bloco <- grupos
 
 g.blocos <- contract.vertices(g.out3.int, as.factor(V(g.out3.int)$bloco),
@@ -315,9 +328,13 @@ plot(g.blocos, edge.arrow.size=.3, layout=layout_in_circle,
 
 
 # Regressão linear
-indeg <- igraph::degree(g.out3.int, mode="in")
-dados <- cbind(dados, indeg+0.1)
-names(dados)[11] <- "indeg"
+#indeg <- igraph::degree(g.out3.int, mode="in")
+#dados <- cbind(dados, indeg+0.1)
+#names(dados)[11] <- "indeg"
+
+const <- constraint(g.out3.int)
+dados <- cbind(dados, const+0.1)
+names(dados)[12] <- "constraint"
 
 #Arrumar esse modelo
 
@@ -346,13 +363,14 @@ texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
        center=F, digits = 3, single.row = T)
 
 coef.prob <- function(x){
-  or <- exp(x)-1
+  or <- (exp(x) - 1)*100
   cat("Coef transformed to Probability\n")
   return(or)
 }
 
 library(xtable)
-x.coef <- xtable(t(coef.prob(coef(fit.multi))), caption="Probabilities", digits=3)
+x.coef <- xtable(cbind(t(exp(coef(fit.multi))) ,t(coef.prob(coef(fit.multi)))), 
+                 caption="Exponentials and Percentages", digits=3)
 print(x.coef)
 
 #yhat <- predict(fit.multi, type = "probs")

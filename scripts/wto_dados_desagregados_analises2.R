@@ -4,9 +4,11 @@
 
 #####################
 names(dados)
-dados %<>% .[,-c(11,12)]
+dados %<>% .[,-c(12,13)]
 dados <- cbind(dados, V(g.out3.int)$name)
-names(dados)[11] <- "pais"
+names(dados)[12] <- "pais"
+
+dados <- as.data.frame(sapply(dados[,1:12], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
 
 name2.int <- as.data.frame(V(g.out2.int)$name, stringsAsFactors = F)
 names(name2.int)[1] <- "pais"
@@ -25,6 +27,7 @@ V(g.out2.int)$Homicidios         <- dados2$Homicidios
 V(g.out2.int)$Pobreza.ext        <- dados2$Pobreza.ext
 V(g.out2.int)$GINI               <- dados2$GINI
 V(g.out2.int)$Bound              <- dados2$simple.average.final.bound
+V(g.out2.int)$IDH                <- dados2$idh
 
 #Colocando atributos na rede1
 name1.int <- as.data.frame(V(g.out.int)$name, stringsAsFactors = F)
@@ -44,6 +47,28 @@ V(g.out.int)$Homicidios         <- dados1$Homicidios
 V(g.out.int)$Pobreza.ext        <- dados1$Pobreza.ext
 V(g.out.int)$GINI               <- dados1$GINI
 V(g.out.int)$Bound              <- dados1$simple.average.final.bound
+V(g.out.int)$IDH                <- dados1$idh
+
+#Colocando atributos na rede3
+name3.int <- as.data.frame(V(g.out3.int)$name, stringsAsFactors = F)
+names(name3.int)[1] <- "pais"
+dados3 <- left_join(name3.int, dados)
+
+
+#View(dados)
+names(dados3)
+V(g.out3.int)$PIB.CeT            <- dados3$PIB.CeT
+V(g.out3.int)$Media.de.artigos   <- dados3$Media.de.artigos
+V(g.out3.int)$Patentes           <- dados3$Patentes
+V(g.out3.int)$Gasto.Educ         <- dados3$Gasto.Educ
+V(g.out3.int)$Cresc.valor.agreg  <- dados3$Cresc.valor.agreg
+V(g.out3.int)$Baixas             <- dados3$Baixas
+V(g.out3.int)$Homicidios         <- dados3$Homicidios
+V(g.out3.int)$Pobreza.ext        <- dados3$Pobreza.ext
+V(g.out3.int)$GINI               <- dados3$GINI
+V(g.out3.int)$Bound              <- dados3$simple.average.final.bound
+V(g.out3.int)$IDH                <- dados3$idh
+
 
 ###############################
 #modelando as redes com TERGM
@@ -58,14 +83,14 @@ par(mfrow=c(1,1))
 
 #########
 # ERGM n.out3
-model3 = formula(n.out3~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
+model3 = formula(n.out3~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
                    gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
                    nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                   nodeicov("populacao")+nodeicov("Bound"))
+                   nodeicov("populacao")+nodeicov("Bound")+nodeicov("IDH"))
 
 summary.statistics(model3)
 
-fit3 <- ergm(model3, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+fit3 <- ergm(model3, control=control.ergm(parallel = 8, parallel.type = "PSOCK", 
                                           main.method="Stepping"))
 summary(fit3)
 
@@ -77,14 +102,14 @@ texreg(fit3, center=F,caption.above=T,caption="ERGM - 2014",digits=3)
 
 #############################
 # ERGM 2
-model2 = formula(n.out2~edges+mutual+gwesp(1.5,fixed=T)+gwidegree(1, fixed=T)+
+model2 = formula(n.out2~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
                    gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
                    nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                   nodeicov("populacao")+nodeicov("Bound"))
+                   nodeicov("populacao")+nodeicov("Bound")+nodeicov("IDH"))
 
 summary.statistics(model2)
 
-fit2 <- ergm(model2, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+fit2 <- ergm(model2, control=control.ergm(parallel = 8, parallel.type = "PSOCK", 
                                           main.method="Stepping"))
 summary(fit2)
 
@@ -102,11 +127,11 @@ texreg(list(fit2,fit3), center=F,caption.above=T,digits=3,
 model1 = formula(n.out~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
                    gwodegree(1.4, fixed=T)+istar(4)+balance+transitive+
                    nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                   nodeicov("populacao")+nodeicov("Bound"))
+                   nodeicov("populacao")+nodeicov("Bound")+nodeicov("IDH"))
 
 summary.statistics(model1)
 
-fit1 <- ergm(model1, control=control.ergm(parallel = 4, parallel.type = "PSOCK", 
+fit1 <- ergm(model1, control=control.ergm(parallel = 8, parallel.type = "PSOCK", 
                                           main.method="Stepping"))
 summary(fit1)
 
@@ -141,7 +166,7 @@ summary.statistics(wto.out~edges+mutual+gwesp(1.3,fixed=F)+gwidegree(1, fixed=F)
 formation <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
                        gwodegree(1.4, fixed=T)+
                        nodeicov("PIB.CeT")+nodeicov("Gasto.Educ")+nodeicov("GINI")+
-                       nodeicov("populacao")+nodeicov("Bound"))
+                       nodeicov("populacao")+nodeicov("Bound")+nodeicov("IDH"))
 
 dissolution <- formula(~edges+mutual+gwesp(1.6,fixed=T)+gwidegree(1, fixed=T)+
                          gwodegree(1.4, fixed=T))

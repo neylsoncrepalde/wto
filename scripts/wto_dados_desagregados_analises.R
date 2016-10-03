@@ -265,9 +265,9 @@ dados.comp <- left_join(dados.comp, idh)
 
 dados <- dados.comp[,2:12]
 
-# Substituindo os zeros por NA e transformando o banco em "dados" novamente
-dados.comp <- as.data.frame(sapply(dados.comp[,1:12], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
-dados <- as.data.frame(sapply(dados.comp[,2:12], function(x) x+0.1, simplify = F), stringsAsFactors = F)
+# Substituindo os NA por zeros e transformando o banco em "dados" novamente
+#dados.comp <- as.data.frame(sapply(dados.comp[,1:12], function(x) car::recode(x, "NA=0"), simplify = F), stringsAsFactors = F)
+#dados <- as.data.frame(sapply(dados.comp[,2:12], function(x) x+0.1, simplify = F), stringsAsFactors = F)
 rownames(dados) <- dados.comp$pais
 #View(dados)
 names(dados)
@@ -333,7 +333,7 @@ plot(g.blocos, edge.arrow.size=.3, layout=layout_in_circle,
 #names(dados)[11] <- "indeg"
 
 const <- constraint(g.out3.int)
-dados <- cbind(dados, const+0.1)
+dados <- cbind(dados, const)
 names(dados)[12] <- "constraint"
 
 #Arrumar esse modelo
@@ -356,6 +356,12 @@ periferia <- which(dados$grupos == 3)
 dados$grupos[periferia] <- 2 #Juntando a periferia
 levels(factor(dados$grupos))
 
+#colocando o IDH com variação de .1
+dados$idh <- dados$idh*100
+
+#colocando o constraint com variação de .1
+dados$constraint <- dados$constraint * 100
+
 fit.multi <- multinom(factor(grupos, levels = c(2,1,4))~., data=dados)
 summary(fit.multi)
 
@@ -372,6 +378,10 @@ library(xtable)
 x.coef <- xtable(cbind(t(exp(coef(fit.multi))) ,t(coef.prob(coef(fit.multi)))), 
                  caption="Exponentials and Percentages", digits=3)
 print(x.coef)
+
+# Computando pseudo R2
+library(pscl)
+pR2(fit.multi)
 
 #yhat <- predict(fit.multi, type = "probs")
 names(dados)

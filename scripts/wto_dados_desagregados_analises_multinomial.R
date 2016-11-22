@@ -1,4 +1,4 @@
-# WTO Analysis 1 (multinom / gamma) testes
+# WTO Analysis 1 (multinom / gamma)
 # ANALYSIS
 # Neylson Crepalde
 
@@ -297,17 +297,24 @@ ue_paises = c('Austria','Belgium','Bulgaria','Croatia','Cyprus','CzechRepublic',
               'Ireland','Italy','Latvia','Lithuania','Luxembourg','Malta','Netherlands',
               'Poland','Portugal','Romania','SlovakRepublic','Slovenia','Spain','Sweden',
               'UnitedKingdom')
+
+g.semUE = g.out3.int
+
 for (pais in ue_paises){
-  if (pais %in% V(g.out3.int)$name == F){
+  if (pais %in% V(g.semUE)$name == F){
     next
   }
   else{
-    g.out3.int = delete_vertices(g.out3.int, pais)
+    g.semUE = delete_vertices(g.semUE, pais)
   }
 }
+g.semUE
+
+##################################
+#BLOCKMODELING só com UE
 
 library(mixer)
-mix <- mixer(as.matrix(get.adjacency(g.out3.int)), qmin = 3, qmax = 5, directed = T)
+mix <- mixer(as.matrix(get.adjacency(g.semUE)), qmin = 3, qmax = 6, directed = T)
 bm.output <- getModel(mix)
 bm.output$Pis # Class connectivity matrix
 plot(mix)
@@ -318,7 +325,7 @@ for (i in 1:ncol(bm.output$Taus)){
   grupos[i] <- which.max(bm.output$Taus[,i])
 }
 
-plot(g.out3.int, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
+plot(g.semUE, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
      vertex.size = 4 ,layout=layout_with_fr)
 title(main="Blockmodeling")
 
@@ -328,9 +335,9 @@ title(main="Blockmodeling")
 #grupos <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", header=F)
 #grupos <- grupos$V1
 
-V(g.out3.int)$bloco <- grupos
+V(g.semUE)$bloco <- grupos
 
-g.blocos <- contract.vertices(g.out3.int, as.factor(V(g.out3.int)$bloco),
+g.blocos <- contract.vertices(g.semUE, as.factor(V(g.semUE)$bloco),
                               vertex.attr.comb = list(inst=toString, "ignore"))
 V(g.blocos)$bloco
 V(g.blocos)$name <- levels(as.factor(grupos))
@@ -351,21 +358,10 @@ plot(g.blocos, edge.arrow.size=.3, layout=layout_in_circle,
 #indeg <- igraph::degree(g.out3.int, mode="in")
 #dados <- cbind(dados, indeg+0.1)
 #names(dados)[11] <- "indeg"
-############################
-#tirando os países da UE
-for (pais in ue_paises){
-  if (pais %in% rownames(dados) == F){
-    next
-  }
-  else{
-    del = which(rownames(dados) == pais)
-    dados = dados[-del,]
-  }
-}
 
-const <- constraint(g.out3.int)
-dados <- cbind(dados, const)
-names(dados)[12] <- "constraint"
+const <- constraint(g.semUE)
+#dados2 <- left_join(dados, const)
+#names(dados)[12] <- "constraint"
 
 #Arrumar esse modelo
 
@@ -380,20 +376,88 @@ texreg(fit1, caption="GLM - Gamma - Response: In Degree", caption.above = T,
 
 # Ajustando modelo logístico multinomial
 library(nnet)
-dados <- cbind(dados, grupos)
+dados$country = rownames(dados)
+bd.grupos = as.data.frame(cbind(V(g.semUE)$name, grupos), stringsAsFactors = F)
+names(bd.grupos) = c("country","bloco")
+bd.grupos$bloco %<>% as.numeric
+dados2 <- left_join(dados, bd.grupos)
 
-dados$grupos[6] <- 1 #Colocando a china junto com os BRICS
-periferia <- which(dados$grupos == 3)
-dados$grupos[periferia] <- 2 #Juntando a periferia
-levels(factor(dados$grupos))
+#Ajeitando os blocos
+dados2$bloco[6] <- 1 #Colocando a china junto com os BRICS
+periferia <- which(dados2$bloco == 3)
+dados2$bloco[periferia] <- 2 #Juntando a periferia
+levels(factor(dados2$bloco))
+
+nas = which(is.na(dados2$bloco))
+dados2$bloco[nas] = 4
+View(dados2[,c(11,12,13)])
+
+dados2$idh[13] = 0.747252859936566 
+dados2$idh[17] = 0.885027260021308
+dados2$idh[20] = 0.762252400296525
+dados2$idh[32] = 0.890262992237101
+dados2$idh[36] = 0.462221996949664
+dados2$idh[37] = 0.781675314080213
+dados2$idh[38] = 0.823921956812207
+dados2$idh[39] = 0.837273977255894
+dados2$idh[68] = 0.870090820750014
+dados2$idh[69] = 0.916079907698891
+dados2$idh[72] = 0.923327926047681
+dados2$idh[73] = 0.94387728002259
+dados2$idh[81] = 0.860835015350877
+dados2$idh[82] = 0.876124307433439
+dados2$idh[84] = 0.882727786825495
+dados2$idh[86] = 0.888107436522597
+dados2$idh[88] = 0.906698191736312
+dados2$idh[94] = 0.86518718080572
+dados2$idh[97] = 0.817539869013173
+dados2$idh[98] = 0.828350453189915
+dados2$idh[99] = 0.915541561984203
+dados2$idh[102] = 0.873022984102699
+dados2$idh[104] = 0.521214355954627
+dados2$idh[105] = 0.655273514725433
+dados2$idh[113] = 0.839421883128433
+dados2$idh[114] = 0.891851626668635
+dados2$idh[115] = 0.818766009538997
+dados2$idh[117] = 0.693302690570275
+dados2$idh[120] = 0.727494941192669
+dados2$idh[121] = 0.838978340089051
+dados2$idh[125] = 0.921793511865192
+dados2$idh[127] = 0.842677827910993
+dados2$idh[128] = 0.83009529677395
+dados2$idh[130] = 0.792797419961585
+dados2$idh[135] = 0.906816460156634
+dados2$idh[136] = 0.880280840350184
+dados2$idh[137] = 0.843572119093826
 
 #colocando o IDH com variação de .1
-dados$idh <- dados$idh*100
+dados2$idh <- dados2$idh*100
 
 #colocando o constraint com variação de .1
-dados$constraint <- dados$constraint * 100
+bd.const = as.data.frame(cbind(V(g.semUE)$name, const), stringsAsFactors = F)
+names(bd.const) = c("country","const")
+dados3 = left_join(dados2, bd.const)
+head(dados3[,12:14])
+nas = which(is.na(dados3$const))
+dados3$const[nas] = dados3$const[2]
 
-fit.multi <- multinom(factor(grupos, levels = c(2,1,4))~., data=dados)
+dados3$const %<>% as.numeric
+
+dados3$const <- dados3$const * 100
+##############################################
+# Tirando a UE para análise
+
+dados4 = dados3[-2,]
+dados4 = dados4[,-10]
+names(dados4)
+
+# Fitando o modelo multinomial
+#####################################
+dados4$Cresc.valor.agreg[dados4$Cresc.valor.agreg == 0] = NA
+dados4$Patentes[dados4$Patentes == 0] = NA
+dados$Baixas
+
+fit.multi <- multinom(factor(bloco, levels = c(2,1,4))~.-country-GINI-Patentes-PIB.CeT-Homicidios, data=dados4)
 summary(fit.multi)
 
 texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
@@ -416,23 +480,25 @@ pR2(fit.multi)
 
 #yhat <- predict(fit.multi, type = "probs")
 names(dados)
-dados$grupos %<>% as.factor
-levels(dados$grupos) <- c("BRICS", "Periphery", "US + EU")
+dados4$bloco %<>% as.factor
+levels(dados4$bloco) <- c("BRICS", "Periphery", "US + EU")
+dados4$simple.average.final.bound = dados3$simple.average.final.bound[-2]
 
-b1 <- ggplot(dados, aes(x=factor(grupos), y=PIB.CeT))+geom_boxplot()+labs(x="")+theme_light()
-b2 <- ggplot(dados, aes(x=factor(grupos), y=Media.de.artigos))+geom_boxplot()+labs(x="")+theme_light()
-b3 <- ggplot(dados, aes(x=factor(grupos), y=Patentes))+geom_boxplot()+labs(x="")+theme_light()
-b4 <- ggplot(dados, aes(x=factor(grupos), y=Gasto.Educ))+geom_boxplot()+labs(x="")+theme_light()
-b5 <- ggplot(dados, aes(x=factor(grupos), y=Cresc.valor.agreg))+geom_boxplot()+labs(x="")+theme_light()
-b6 <- ggplot(dados, aes(x=factor(grupos), y=Baixas))+geom_boxplot()+labs(x="")+theme_light()
+
+b1 <- ggplot(dados4, aes(x=factor(bloco), y=PIB.CeT))+geom_boxplot()+labs(x="")+theme_light()
+b2 <- ggplot(dados4, aes(x=factor(bloco), y=Media.de.artigos))+geom_boxplot()+labs(x="")+theme_light()
+b3 <- ggplot(dados4, aes(x=factor(bloco), y=Patentes))+geom_boxplot()+labs(x="")+theme_light()
+b4 <- ggplot(dados4, aes(x=factor(bloco), y=Gasto.Educ))+geom_boxplot()+labs(x="")+theme_light()
+b5 <- ggplot(dados4, aes(x=factor(bloco), y=Cresc.valor.agreg))+geom_boxplot()+labs(x="")+theme_light()
+b6 <- ggplot(dados4, aes(x=factor(bloco), y=Baixas))+geom_boxplot()+labs(x="")+theme_light()
 
 multiplot(b1,b2,b3,b4,b5,b6, cols = 3)
 
-b7 <- ggplot(dados, aes(x=factor(grupos), y=Homicidios))+geom_boxplot()+labs(x="")+theme_light()
-b8 <- ggplot(dados, aes(x=factor(grupos), y=Pobreza.ext))+geom_boxplot()+labs(x="")+theme_light()
-b9 <- ggplot(dados, aes(x=factor(grupos), y=GINI))+geom_boxplot()+labs(x="")+theme_light()
-b10 <- ggplot(dados, aes(x=factor(grupos), y=simple.average.final.bound))+geom_boxplot()+labs(x="")+theme_light()
-b11 <- ggplot(dados, aes(x=factor(grupos), y=idh))+geom_boxplot()+labs(x="")+theme_light()
-b12 <- ggplot(dados, aes(x=factor(grupos), y=constraint))+geom_boxplot()+labs(x="")+theme_light()
+b7 <- ggplot(dados4, aes(x=factor(bloco), y=Homicidios))+geom_boxplot()+labs(x="")+theme_light()
+b8 <- ggplot(dados4, aes(x=factor(bloco), y=Pobreza.ext))+geom_boxplot()+labs(x="")+theme_light()
+b9 <- ggplot(dados4, aes(x=factor(bloco), y=GINI))+geom_boxplot()+labs(x="")+theme_light()
+b10 <- ggplot(dados4, aes(x=factor(bloco), y=simple.average.final.bound))+geom_boxplot()+labs(x="")+theme_light()
+b11 <- ggplot(dados4, aes(x=factor(bloco), y=idh))+geom_boxplot()+labs(x="")+theme_light()
+b12 <- ggplot(dados4, aes(x=factor(bloco), y=const))+geom_boxplot()+labs(x="")+theme_light()
 
 multiplot(b7,b8,b9,b10,b11,b12, cols = 3)

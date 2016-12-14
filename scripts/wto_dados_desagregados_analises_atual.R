@@ -313,27 +313,27 @@ g.semUE
 ##################################
 #BLOCKMODELING só com UE
 
-library(mixer)
-mix <- mixer(as.matrix(get.adjacency(g.semUE)), qmin = 3, qmax = 6, directed = T)
-bm.output <- getModel(mix)
-bm.output$Pis # Class connectivity matrix
-plot(mix)
+#library(mixer)
+#mix <- mixer(as.matrix(get.adjacency(g.semUE)), qmin = 3, qmax = 6, directed = T)
+#bm.output <- getModel(mix)
+#bm.output$Pis # Class connectivity matrix
+#plot(mix)
 
-grupos <-c()
+#grupos <-c()
 
-for (i in 1:ncol(bm.output$Taus)){
-  grupos[i] <- which.max(bm.output$Taus[,i])
-}
+#for (i in 1:ncol(bm.output$Taus)){
+#  grupos[i] <- which.max(bm.output$Taus[,i])
+#}
 
-plot(g.semUE, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
-     vertex.size = 4 ,layout=layout_with_fr)
-title(main="Blockmodeling")
+#plot(g.semUE, vertex.label.cex=.7, vertex.color=grupos+2, edge.arrow.size=.3,
+#     vertex.size = 4 ,layout=layout_with_fr)
+#title(main="Blockmodeling")
 
-#write.csv(grupos, "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", row.names = F, col.names = F)
+#write.csv(grupos, "~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", row.names = F)
 
 #Reduzindo a rede aos blocos
-#grupos <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", header=F)
-#grupos <- grupos$V1
+grupos <- read.csv("~/Documentos/Neylson Crepalde/Doutorado/GIARS/wto/seminario_giars/blocos.csv", header=T)
+grupos <- grupos$x
 
 V(g.semUE)$bloco <- grupos
 
@@ -390,7 +390,7 @@ levels(factor(dados2$bloco))
 
 nas = which(is.na(dados2$bloco))
 dados2$bloco[nas] = 4
-View(dados2[,c(11,12,13)])
+#View(dados2[,c(11,12,13)])
 
 dados2$idh[13] = 0.747252859936566 
 dados2$idh[17] = 0.885027260021308
@@ -446,22 +446,49 @@ dados3$const %<>% as.numeric
 dados3$const <- dados3$const * 100
 ##############################################
 # Tirando a UE para análise
-
 dados4 = dados3[-2,]
-dados4 = dados4[,-10]
 names(dados4)
+
+# Atribuindo 5 ao bound dos paises UE
+lista = c()
+for (pais in ue_paises){
+  y = which(dados4$country == pais)
+  lista = c(lista, y)
+}
+#View(dados4)
+
+dados4$simple.average.final.bound[lista] = 5.0
 
 # Fitando o modelo multinomial
 #####################################
-dados4$Cresc.valor.agreg[dados4$Cresc.valor.agreg == 0] = NA
-dados4$Patentes[dados4$Patentes == 0] = NA
+#dados4$Cresc.valor.agreg[dados4$Cresc.valor.agreg == 0] = NA
+#dados4$Patentes[dados4$Patentes == 0] = NA
 dados$Baixas
 
-fit.multi <- multinom(factor(bloco, levels = c(2,1,4))~.-country-GINI-Patentes-PIB.CeT-Homicidios, data=dados4)
-summary(fit.multi)
 
-texreg(fit.multi, caption="Multinomial Logistic Model", caption.above = T,
+#fit.multi1 <- multinom(factor(bloco, levels = c(2,1,4))~.-country, data=dados4)
+#fit.multi2 <- multinom(factor(bloco, levels = c(2,1,4))~.-country-Patentes, data=dados4)
+fit.multi3 <- multinom(factor(bloco, levels = c(2,1,4))~.-country-Patentes-Media.de.artigos, data=dados4)
+#fit.multi4 <- multinom(factor(bloco, levels = c(2,1,4))~.-country-Patentes-Media.de.artigos-Baixas, data=dados4)
+#fit.multi5 <- multinom(factor(bloco, levels = c(2,1,4))~.-country-Patentes-Media.de.artigos-GINI, data=dados4)
+#fit.multi6 <- multinom(factor(bloco, levels = c(2,1,4))~.-country-Patentes-Media.de.artigos-Baixas-GINI, data=dados4)
+# Melhor modelo é o fit.multi3
+
+summary(fit.multi3)
+
+screenreg(fit.multi3)
+
+#texreg(list(fit.multi1,fit.multi2,fit.multi3), 
+#          caption="Multinomial Logistic Model", caption.above = T,
+#       center=F, digits = 3, single.row = T)
+#texreg(list(fit.multi4,fit.multi5,fit.multi6,fit.multi7), 
+#       caption="Multinomial Logistic Model", caption.above = T,
+#       center=F, digits = 3, single.row = T)
+texreg(fit.multi3, 
+       caption="Multinomial Logistic Model", caption.above = T,
        center=F, digits = 3, single.row = T)
+
+
 
 coef.prob <- function(x){
   or <- (exp(x) - 1)*100
@@ -470,16 +497,16 @@ coef.prob <- function(x){
 }
 
 library(xtable)
-x.coef <- xtable(cbind(t(exp(coef(fit.multi))) ,t(coef.prob(coef(fit.multi)))), 
-                 caption="Exponentials and Percentages", digits=3)
+x.coef <- xtable(cbind(t(exp(coef(fit.multi3))) ,t(coef.prob(coef(fit.multi3)))), 
+                 caption="Exponentials and Percentages", digits=2)
 print(x.coef)
 
 # Computando pseudo R2
 library(pscl)
-pR2(fit.multi)
+pR2(fit.multi3)
 
 #yhat <- predict(fit.multi, type = "probs")
-names(dados)
+names(dados4)
 dados4$bloco %<>% as.factor
 levels(dados4$bloco) <- c("BRICS", "Periphery", "US + EU")
 dados4$simple.average.final.bound = dados3$simple.average.final.bound[-2]
